@@ -1,0 +1,40 @@
+at 0 for .1 - A4
+at .1 for .1 - C5
+at 1 for .1 - E5
+at 2 for 1.1 - A3 chord(A4 minor)
+
+next measure
+
+at 0 for .1 - B4
+at .1 for .1 - D5
+at 1 for .1 - F5
+at 2 for 1.1 - B3 chord(B4 minor dim5)
+
+next measure
+
+at 0 for .1 - C5
+at .1 for .1 - E5
+at 1 for .1 - G5
+at 2 for 1.1 - C4 chord(C5 Major)
+
+next measure
+
+at 0 for .1 - Ab5
+at .1 for .1 - F5
+at 1 for .1 - C5
+at 2 for 1.1 - chord(F4 minor) F5
+
+next measure
+
+arpegiate(0 2 .1 pyramid chord(A4 minor))
+arpegiate(2 2 .1 pyramid chord(B4 minor dim5))
+
+next measure
+
+arpegiate(0 2 .1 pyramid chord(C5 Major))
+arpegiate(2 2 .1 pyramid chord(D5 minor))
+
+next measure
+
+at 0 for 2.1 - Ab5
+at 2.1 for 1 - A5

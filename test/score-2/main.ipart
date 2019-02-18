@@ -1,0 +1,45 @@
+measure 9/8
+tempo 100
+
+at 0 for .1 - Bb4
+at .1 for .1 - F4
+at .2 for .1 - D4
+at .3 for .1 - F4
+at .4 for .1 - Bb4
+at .5 for .1 - D5
+at 3 for .1 - F5
+at 3.1 for .1 - D5
+at 3.2 for .1 - Bb4
+at 3.3 for .1 - F4
+at 3.4 for .1 - Bb4
+at 3.5 for .1 - D5
+at 6 for 1 - C5
+at 6.2 for .1 - F4
+at 6.3 for .1 - A4
+at 6.4 for .1 - C5
+at 6.5 for .1 - F5
+
+next measure
+
+at 0 for .1 - G5
+at .1 for .1 - D5
+at .2 for .1 - Bb4
+at .3 for .1 - G4
+at .4 for .1 - Bb4
+at .5 for .1 - D5
+at 3 for .1 - Bb4
+at 3.1 for .1 - G4
+at 3.2 for .1 - Bb4
+at 3.3 for .1 - D5
+at 3.4 for .1 - G5
+at 3.5 for .1 - Bb5
+at 6 for .1 - A5
+at 6.1 for .1 - F5
+at 6.2 for .1 - C5
+at 6.3 for .1 - A4
+at 6.4 for .1 - F4
+at 6.5 for .1 - A4
+
+next measure
+
+at 0 for 2.1 - Bb4
