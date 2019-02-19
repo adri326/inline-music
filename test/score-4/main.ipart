@@ -1,0 +1,44 @@
+// Little, happy melody
+
+measure 4/4
+tempo 160
+
+at .1 for .1 - G4
+at 1 for .1 - F#4
+at 1.1 for .1 - G4
+
+at 2 for ..1 - D5
+at 2.1 for .1 - G4
+at 3 for .1 - F#4
+at 3.1 for 1 - G4
+
+next measure
+
+at .1 for .1 - G4
+at 1 for .1 - F#4
+at 1.1 for .1 - G4
+
+at 2 for ..1 - G5
+at 2.1 for .1 - G4
+at 3 for .1 - F#4
+at 3.1 for 1 - G4
+
+next measure
+
+at .1 for .1 - G4
+at 1 for .1 - F#4
+at 1.1 for .1 - G4
+
+at 2 for ..1 - D5
+at 2.1 for .1 - G4
+at 3 for .1 - F#4
+at 3.1 for .1 - G4
+
+next measure
+
+at 0 for ..1 - G5
+at .1 for ..1 - D5
+at 1 for ..1 - F#5
+at 1.1 for ..1 - D5
+
+at 2 for 1 - G5

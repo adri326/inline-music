@@ -1,0 +1,35 @@
+measure 4/4
+tempo 110
+
+start repeat
+
+at 0 for 1.1 - chord(A4 minor 7)
+at 1.1 for 1.1 - chord(G4 major) E5 A5
+at 3 for 1 - chord(D4 major sus4) G5
+
+next measure
+
+at 0 for .1 - chord(E4 minor) G5
+at .1 for 1 - chord(A4 minor) E6
+at 1.1 for 1.1 - chord(C5 major add9) G6
+at 3 for 1 - chord(G4 major) D6
+
+repeat 1 time
+
+at 0 for 1.1 - chord(D4 minor)
+at 1.1 for 1.1 - chord(E4 minor 7)
+
+next measure
+
+at 0 for 1.1 - chord(F4 major) D6
+at 1.1 for 1.1 - chord(G4 major)
+
+next measure
+
+at 0 for 1.1 - chord(D4 minor) F5 C6
+at 1.1 for 1.1 - chord(E4 minor 7) B5 E6
+
+next measure
+
+at 0 for 1.1 - chord(F4 major) D6 G6
+at 1.1 for 1.1 - G4 chord(G5 major) G6 D7

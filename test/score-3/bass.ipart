@@ -1,0 +1,14 @@
+start repeat
+
+at 0 for 1.1 - A3
+at 1.1 for 1.1 - B3
+at 3 for 1 - G3
+
+next measure
+
+at 0 for .1 - E3
+at .1 for 1 - C3
+at 1.1 for 1.1 - A3
+at 3 for 1 - G3
+
+repeat 1 time

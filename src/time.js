@@ -38,6 +38,10 @@ class Time {
     this.raw.forEach((v, i) => _time.raw[i] = (_time.raw[i] || 0) + v);
     return _time;
   }
+
+  isNull() {
+    return !this.raw.reduce((acc, act) => acc + act);
+  }
 }
 
 module.exports = Time;

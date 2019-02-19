@@ -1,0 +1,11 @@
+skip 2 measures
+
+arpegiate(0 1.1 .1/..1 constant D4)
+arpegiate(1.1 1.1 .1/..1 constant E4)
+arpegiate(3 1 .1/..1 constant D4)
+
+next measure
+
+arpegiate(.1 1 .1/..1 constant E4)
+arpegiate(1.1 1.1 .1/..1 constant G4)
+arpegiate(3 1 .1/..1 constant D4)

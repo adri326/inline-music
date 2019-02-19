@@ -9,6 +9,7 @@ function convertScore(obj, name, glob) {
   track.addTrackName(name);
   track.setTempo(glob.tempo);
   track.setTimeSignature(glob.measure[0], glob.measure[1]);
+  if (obj.instrument) track.addInstrumentName(obj.instrument);
 
   let pos = 0; // position of the last note
   let mpos = 0; // position of the current measure

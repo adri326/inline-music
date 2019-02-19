@@ -2,12 +2,14 @@ const functions = require("./functions");
 const Note = require("./note");
 const Time = require("./time");
 
+const colors = require("colors/safe");
+
 
 module.exports = function parser(gathered, verbose) {
   let glob = {};
   let parsed = {};
   if (verbose) console.log();
-  Object.entries(gathered).forEach(([name, lines]) => {
+  Object.entries(gathered).sort(([a], [b]) => (b === "main") - (a === "main")).forEach(([name, lines]) => {
     if (verbose) {
       console.log(`-> Track '${name}'`);
       console.log();
@@ -25,7 +27,9 @@ function parseFile(lines, main, glob, verbose) {
   let parsed = {
     measures: [
       {notes: []}
-    ]
+    ],
+    repeat: null,
+    instrument: null
   };
 
   let position = 0;
@@ -34,16 +38,27 @@ function parseFile(lines, main, glob, verbose) {
   function parseLine(line, index, sub = false) {
     let expanded = expand(line, index, glob);
     if (verbose) {
-      console.log(`${sub ? " ^--" : ""} (${index}): ${expanded}`);
+      console.log(`${sub ? " ^--" : ""} (${colors.bold(index)}): ${line}`);
+      if (expanded != line) {
+        console.log(colors.grey(`${sub ? " ^--" : ""} (${colors.bold(index)}): ${expanded}`));
+      }
     }
     let keywords = expanded.split(/ |\n/g).filter(Boolean);
     switch (keywords[0]) {
       case "measure":
         if (!main) throw ERROR.notMain(index);
         if (!keywords[1]) throw ERROR.notEnoughArguments(index, 1, keywords.length - 1);
+        if (glob.measure) throw new Error(`Measure has already been set! Line ${index}`);
 
         let split = keywords[1].split("/").map(Number);
-        if (split.length != 2 || isNaN(split[0]) || split[0] <= 0 || isNaN(split[1]) || split[1] <= 0) {
+        if (
+          split.length != 2
+          || isNaN(split[0])
+          || split[0] <= 0
+          || isNaN(split[1])
+          || split[1] <= 0
+          || ![1, 2, 4, 8, 16, 32, 64, 128].includes(split[1])
+        ) {
           throw ERROR.invalidArgument(index, keywords[1]);
         }
         glob.measure = split;
@@ -52,6 +67,7 @@ function parseFile(lines, main, glob, verbose) {
       case "tempo":
         if (!main) throw ERROR.notMain(index);
         if (!keywords[1]) throw ERROR.notEnoughArguments(index, 1, keywords.length - 1);
+        if (glob.tempo) throw new Error(`Tempo has already been set! Line ${index}`);
 
         let tempo = Number(keywords[1]);
         if (isNaN(tempo) || tempo <= 0) {
@@ -60,6 +76,11 @@ function parseFile(lines, main, glob, verbose) {
         glob.tempo = tempo;
 
         break;
+      case "instrument":
+        if (!keywords[1]) throw ERROR.notEnoughArguments(index, 1, keywords.length - 1);
+        if (parsed.instrument !== null) throw new Error(`Instrument already specified (line ${index})`);
+        parsed.instrument = keywords[1];
+        break;
       case "at":
         if (keywords.length <= 5) throw ERROR.notEnoughArguments(index, "> 4", keywords.length - 1);
         if (keywords[2] != "for") throw Error.invalidArgument(index, keywords[2]);
@@ -67,16 +88,19 @@ function parseFile(lines, main, glob, verbose) {
 
         let pos = parseTime(index, keywords[1]);
         let length = parseTime(index, keywords[3]);
+
+        if (length.isNull()) throw new Error(`Null note length at line ${index}: ${keywords[3]}`);
+
         let notes = keywords.slice(5).map((raw) => new Note(raw));
 
-        if (pos.toBeats(glob) < lastNotePosition) {
+        if (pos.toBeats(glob) + glob.measure[0] * position < lastNotePosition) {
           throw new Error(`Invalid note position at line ${index}: note is before the last one`);
         }
 
-        lastNotePosition = pos.toBeats(glob) + length.toBeats(glob);
+        lastNotePosition = pos.toBeats(glob) + length.toBeats(glob) + glob.measure[0] * position;
 
-        if (lastNotePosition > glob.measure[0]) {
-          throw new Error(`Note overruns measure at line ${index}`);
+        if (pos.toBeats(glob) > glob.measure[0]) {
+          throw new Error(`Note is outside of the measure at line ${index}`);
         }
 
         parsed.measures[position].notes.push({
@@ -98,6 +122,48 @@ function parseFile(lines, main, glob, verbose) {
             break;
         }
         break;
+      case "start":
+        if (keywords.length != 2) throw ERROR.notEnoughArguments(index, 1, keywords.length - 1);
+        switch (keywords[1]) {
+          case "repeat":
+            if (parsed.repeat !== null) throw new Error(`Repeat already started at line ${parsed.repeat} (line ${index})`);
+            parsed.repeat = index;
+            break;
+        }
+        break;
+      case "repeat":
+        if (keywords.length != 3) throw ERROR.notEnoughArguments(index, 2, keywords.length - 1);
+        let times = +keywords[1];
+        if (isNaN(times) || times <= 0) throw new ERROR.invalidArgument(index, keywords[1]);
+        if (keywords[2] !== "time" && keywords[2] !== "times") throw new ERROR.invalidArgument(index, keywords[2]);
+
+        if (parsed.repeat === null) throw new Error(`No repeat started at line ${index}`);
+        if (sub && parsed.repeat === index) throw new Error(`Cannot repeat within a sub, at line ${index}`);
+
+        for (let x = 0; x < times; x++) {
+          if (verbose) console.log(colors.blue(` ^-- (${colors.bold(index)})~ repeat #${x+1}`));
+          parseLine("next measure", index, true);
+          for (let y = lines.findIndex(([_, i]) => i > parsed.repeat); (lines[y] || [0, index])[1] < index; y++) {
+            parseLine(...lines[y], sub);
+          }
+        }
+        parseLine("next measure", index, true);
+
+        parsed.repeat = null;
+
+        break;
+      case "skip":
+        if (keywords.length != 3) throw ERROR.notEnoughArguments(index, 2, keywords.length - 1);
+        if (keywords[2] === "measure" || keywords[2] === "measures") {
+          let n = +keywords[1];
+          if (isNaN(n) || n <= 0) throw ERROR.invalidArgument(index, keywords[1]);
+          for (let x = 0; x < n; x++) {
+            parseLine("next measure", index, true);
+          }
+        } else {
+          throw ERROR.invalidArgument(index, keywords[2]);
+        }
+        break;
       case "~":
         // console.log(keywords);
         let _lines = expanded.slice(1).split("\n").filter(Boolean);
@@ -105,7 +171,6 @@ function parseFile(lines, main, glob, verbose) {
           parseLine(_line, index, true);
         });
         break;
-
       case "//":
         // comments
         break;
@@ -118,6 +183,8 @@ function parseFile(lines, main, glob, verbose) {
   for (let [line, index] of lines) {
     parseLine(line, index);
   }
+
+  if (parsed.repeat !== null) throw new Error(`Unmatched repeat at line ${parsed.repeat}`);
 
   return parsed;
 }
@@ -175,10 +242,9 @@ function expand(line, index, glob) {
         length += fn.index + fn[0].length + nchar;
       } else {
         length += fn.index;
-        return [res, length];
+        return [res, length + 1];
       }
     }
-
     return [res + text, length + text.length];
   }
   return sub(line)[0];
@@ -190,7 +256,7 @@ const ERROR = {
     return new Error(`Invalid argument at line ${index}: ${arg}`);
   },
   notEnoughArguments: function(index, expected, got) {
-    return new Error(`Not enough arguments given at line ${index}: expected ${expected} argument, got ${got}`);
+    return new Error(`Incorrect number of arguments provided at line ${index}: expected ${expected} argument, got ${got}`);
   },
   notMain: function(index) {
     return new Error(`Keyword should be in the main file at line ${index}`);
